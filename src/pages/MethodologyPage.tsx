@@ -35,44 +35,47 @@ export function MethodologyPage() {
 
         <section className="p-6 space-y-2">
           <h2 className="text-sm font-semibold text-[#172033]">
-            02. Source Hierarchy & Documentation Retrieval
+            02. Curated Official-Source Registry &amp; HTTP Retrieval
           </h2>
           <p className="text-xs text-[#64748B] leading-relaxed">
-            The automated pipeline queries Google Search Grounding via Gemini to
-            locate primary vendor documentation: official product sites,
-            developer portals, API references, authentication guides, pricing or
-            partner access pages, and official/community MCP repositories. Up to
-            five discovered URLs per app are fetched over HTTP with timeouts and
-            HTML-to-text extraction so both extraction and verification inspect
-            actual page content rather than relying purely on model memory.
+            The pipeline maps every canonical application to a curated official
+            source registry containing verified primary URLs: official product
+            sites, developer portals, API references, authentication guides,
+            pricing/access pages, and official vs. community MCP repositories
+            (leaving unconfirmed entries as <span className="font-mono text-[#172033]">null</span>).
+            Up to six source URLs per app are fetched directly over HTTP with
+            redirect tracking, 8-second timeouts, bot/SPA detection, and
+            HTML/JSON-to-text extraction.
           </p>
         </section>
 
         <section className="p-6 space-y-2">
           <h2 className="text-sm font-semibold text-[#172033]">
-            03. Structured AI Extraction & Validation
+            03. Deterministic Evidence Extraction &amp; Provenance Validation
           </h2>
           <p className="text-xs text-[#64748B] leading-relaxed">
-            Gemini extracts a strict JSON schema validated by Zod. Claims are
-            explicitly separated into verified facts (with attached source URLs),
-            missing/unknown states (never guessing an auth method or API simply
-            because peers have one), and engineering concerns vs. documented
-            blockers. URL provenance checks flag any citation that did not come
-            from discovered search results.
+            A deterministic rule-based extractor inspects only fetched page text
+            and produces a strict JSON payload validated by Zod. Every extracted
+            factual claim attaches a real URL, retrieval timestamp, and verbatim
+            supporting excerpt. Unfetched, HTTP 403/429-blocked, or ambiguous
+            fields remain <span className="font-mono text-[#172033]">null</span>{" "}
+            or <span className="font-mono text-[#172033]">unknown</span>—never
+            guessed or treated as proof that no API exists.
           </p>
         </section>
 
         <section className="p-6 space-y-2">
           <h2 className="text-sm font-semibold text-[#172033]">
-            04. Evidence-Based Verification Loop & Accuracy Measurement
+            04. Independent Evidence Audit &amp; Accuracy Measurement
           </h2>
           <p className="text-xs text-[#64748B] leading-relaxed">
-            Every researched app immediately enters an adversarial verification
-            pass. First-pass findings across 8 core claim groups (authentication,
-            API availability, API types, access model, MCP ownership,
-            buildability, technical restrictions, and evidence URLs) are audited
-            against HTTP reachability checks and independent search verification.
-            Each claim receives one of five outcomes:{" "}
+            Every researched app enters an independent deterministic verification
+            audit across 8 core claim groups (authentication, API availability,
+            API types, access model, MCP ownership, buildability, technical
+            restrictions, and evidence excerpts). URL reachability alone never
+            marks a claim verified: each claim must match corroborating text in
+            retrieved excerpts without contradiction, and prior human-reviewed
+            overrides are preserved across re-runs. Outcomes are tagged{" "}
             <span className="font-mono text-[#15803D]">verified</span>,{" "}
             <span className="font-mono text-[#635BFF]">corrected</span>,{" "}
             <span className="font-mono text-[#D97706]">needs_human_review</span>,{" "}
@@ -177,13 +180,14 @@ export function MethodologyPage() {
 
         <section className="p-6 space-y-2">
           <h2 className="text-sm font-semibold text-[#172033]">
-            07. Known Limitations & Human Intervention Points
+            07. Known Limitations &amp; Human Intervention Points
           </h2>
           <p className="text-xs text-[#64748B] leading-relaxed">
-            Automated retrieval cannot bypass vendor developer logins, NDA-gated
-            enterprise documentation, or strict anti-bot firewalls (HTTP 403/429).
-            Any record with unreachable primary citations or ambiguous access
-            terms is automatically marked{" "}
+            Deterministic HTTP retrieval runs with zero paid AI API keys,
+            eliminating model billing barriers and hallucinations, but cannot
+            bypass login-walled developer portals, NDA-gated specs, JavaScript-only
+            SPAs, or anti-bot firewalls (HTTP 403/429). Any record with
+            blocked/thin documentation or unconfirmed claims is automatically marked{" "}
             <span className="font-mono text-[#D97706]">needs_review</span> for
             human inspection and override in the Verification tab or Application
             Detail drawer.

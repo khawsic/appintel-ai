@@ -19,13 +19,11 @@ async function startServer() {
 
   // Health & environment readiness
   app.get("/api/health", async (_req, res) => {
-    const geminiConfigured = Boolean(
-      process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== "MY_GEMINI_API_KEY"
-    );
     const composio = await probeComposioEnvironment();
     res.json({
       ok: true,
-      geminiConfigured,
+      researchReady: true,
+      pipelineMode: "deterministic_evidence_first",
       composio,
     });
   });
@@ -142,13 +140,6 @@ async function startServer() {
       appId?: string;
       category?: AppCategory;
     };
-
-    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "MY_GEMINI_API_KEY") {
-      return res.status(400).json({
-        error:
-          "GEMINI_API_KEY is missing. Configure your Gemini API key in Settings > Secrets before running research.",
-      });
-    }
 
     if (!mode) {
       return res.status(400).json({ error: "Research mode is required." });

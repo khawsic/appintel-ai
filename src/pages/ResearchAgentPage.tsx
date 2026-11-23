@@ -39,11 +39,11 @@ interface ResearchAgentPageProps {
 }
 
 const PIPELINE_STAGES: Array<{ id: PipelineStage; label: string }> = [
-  { id: "source_discovery", label: "Source Discovery" },
+  { id: "source_registry", label: "Source Registry" },
   { id: "doc_retrieval", label: "Doc Retrieval" },
-  { id: "gemini_extraction", label: "Gemini Extraction" },
-  { id: "schema_validation", label: "Schema Validation" },
-  { id: "evidence_verification", label: "Verification Loop" },
+  { id: "evidence_extraction", label: "Evidence Extraction" },
+  { id: "evidence_validation", label: "Evidence Validation" },
+  { id: "evidence_verification", label: "Verification Audit" },
   { id: "saving", label: "Storage" },
 ];
 
@@ -103,8 +103,8 @@ export function ResearchAgentPage({
             Automated Research Agent
           </h1>
           <p className="text-sm text-[#64748B] mt-1">
-            Execute real-time source discovery, structured Gemini extraction,
-            and claim verification across individual apps or batches.
+            Execute curated official-source lookup, live HTTP documentation
+            retrieval, deterministic evidence extraction, and claim verification.
           </p>
         </div>
         {batch.active && (
@@ -125,11 +125,11 @@ export function ResearchAgentPage({
           <div className="flex items-center gap-4 flex-wrap">
             <StatusIndicator
               label={
-                health.geminiConfigured
-                  ? "Gemini Search & Extraction Ready"
-                  : "GEMINI_API_KEY Not Configured"
+                health.researchReady
+                  ? "Evidence-First Research Pipeline Ready (No Paid AI Key Required)"
+                  : "Research Pipeline Unavailable"
               }
-              tone={health.geminiConfigured ? "success" : "error"}
+              tone={health.researchReady ? "success" : "error"}
             />
             <span className="text-[#CBD5E1]" aria-hidden="true">
               |
@@ -162,15 +162,6 @@ export function ResearchAgentPage({
             <span>Latest Pipeline Error ({logs[0].app_name})</span>
           </div>
           <p className="break-words">{logs[0].message}</p>
-          {(logs[0].message.includes("PERMISSION_DENIED") ||
-            logs[0].message.includes("API_KEY_INVALID") ||
-            logs[0].message.includes("RESOURCE_EXHAUSTED")) && (
-            <p className="text-[#991B1B]">
-              Check your Gemini API key or billing tier in{" "}
-              <strong>Settings &gt; Secrets</strong>, then click{" "}
-              <strong>Retry Failed</strong>.
-            </p>
-          )}
         </div>
       )}
 

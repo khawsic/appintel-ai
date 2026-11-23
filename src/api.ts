@@ -10,7 +10,8 @@ import {
 
 export interface HealthStatus {
   ok: boolean;
-  geminiConfigured: boolean;
+  researchReady: boolean;
+  pipelineMode: string;
   composio: {
     configured: boolean;
     endpoint_tested: string;

@@ -1,6 +1,6 @@
 {
   "name": "AppIntel AI",
-  "description": "Research smarter. Integrate strategically. Automated application research, evidence-based verification, and integration intelligence across 100 ecosystem apps.",
+  "description": "Research smarter. Integrate strategically. Deterministic, evidence-based application research, verification, and integration intelligence across 100 ecosystem apps.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }

@@ -558,6 +558,11 @@ export function AppDetailPanel({
                         <p className="text-xs text-[#172033]">
                           {ev.claim_supported}
                         </p>
+                        {ev.excerpt && (
+                          <blockquote className="text-[11px] text-[#475569] bg-[#F8FAFC] border-l-2 border-[#CBD5E1] pl-2.5 py-1 italic line-clamp-3">
+                            &ldquo;{ev.excerpt}&rdquo;
+                          </blockquote>
+                        )}
                         <div className="text-[11px] text-[#64748B] font-mono truncate">
                           {ev.url}
                         </div>
@@ -631,7 +636,7 @@ export function AppDetailPanel({
                           </div>
                           <div className="text-[#64748B]">
                             <strong className="text-[#172033] font-normal">
-                              First-pass AI:
+                              First-pass extracted:
                             </strong>{" "}
                             {item.original_ai_finding}
                           </div>

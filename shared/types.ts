@@ -161,10 +161,10 @@ export interface AppRecord {
 
 export type PipelineStage =
   | "idle"
-  | "source_discovery"
+  | "source_registry"
   | "doc_retrieval"
-  | "gemini_extraction"
-  | "schema_validation"
+  | "evidence_extraction"
+  | "evidence_validation"
   | "evidence_verification"
   | "saving";
 

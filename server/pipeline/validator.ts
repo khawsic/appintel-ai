@@ -13,6 +13,8 @@ export const ExtractedEvidenceSchema = z.object({
     "technical_source",
   ]),
   claim_supported: z.string().min(1),
+  excerpt: z.string().min(12),
+  researched_at: z.string().min(1),
 });
 
 export const ExtractedBlockerSchema = z.object({
@@ -23,8 +25,8 @@ export const ExtractedBlockerSchema = z.object({
 
 export const ExtractedAppSchema = z.object({
   official_website: z.string().nullable(),
-  description: z.string().min(1),
-  primary_purpose: z.string().min(1),
+  description: z.string().nullable(),
+  primary_purpose: z.string().nullable(),
   use_cases: z.array(z.string()),
   authentication_methods: z.array(z.string()),
   authentication_evidence: z.array(z.string()),
@@ -75,48 +77,77 @@ export function isValidHttpUrl(value: string | null | undefined): boolean {
 }
 
 export function validateAndSanitizeExtraction(
-  rawJsonText: string,
+  rawPayload: unknown,
   allowedSourceUrls: string[]
 ): ExtractedAppPayload {
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(rawJsonText);
-  } catch (err) {
-    throw new Error(`Invalid JSON returned by extractor: ${err instanceof Error ? err.message : String(err)}`);
-  }
+  const parsed =
+    typeof rawPayload === "string"
+      ? (() => {
+          try {
+            return JSON.parse(rawPayload);
+          } catch (err) {
+            throw new Error(
+              `Invalid JSON returned by extractor: ${
+                err instanceof Error ? err.message : String(err)
+              }`
+            );
+          }
+        })()
+      : rawPayload;
 
   const result = ExtractedAppSchema.safeParse(parsed);
   if (!result.success) {
-    throw new Error(`Schema validation failed: ${result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`);
+    throw new Error(
+      `Schema validation failed: ${result.error.issues
+        .map((i) => `${i.path.join(".")}: ${i.message}`)
+        .join("; ")}`
+    );
   }
 
   const data = result.data;
   const allowedSet = new Set(allowedSourceUrls.map((u) => u.trim()));
-
-  // Sanitize evidence URLs to ensure valid HTTP(S) format; mark ungrounded ones in notes
-  const validEvidence = data.evidence.filter((e) => isValidHttpUrl(e.url));
   const extraNotes = [...data.notes];
 
-  for (const item of validEvidence) {
-    if (allowedSet.size > 0 && !allowedSet.has(item.url.trim())) {
-      // Allow domain-matching official docs found during search even if query string differed
+  // Validate evidence URLs strictly: must be valid HTTP(S), have non-empty excerpt,
+  // and belong to an allowed registry/resolved URL (or same hostname on redirect).
+  const validEvidence = data.evidence.filter((e) => {
+    if (!isValidHttpUrl(e.url)) {
+      extraNotes.push(`Rejected invalid evidence URL: "${e.url}".`);
+      return false;
+    }
+    if (!e.excerpt || e.excerpt.trim().length < 12) {
+      extraNotes.push(`Rejected evidence item for ${e.url} due to missing supporting excerpt.`);
+      return false;
+    }
+    if (allowedSet.size > 0 && !allowedSet.has(e.url.trim())) {
       const hostMatch = allowedSourceUrls.some((u) => {
         try {
-          return new URL(u).hostname === new URL(item.url).hostname;
+          return new URL(u).hostname === new URL(e.url).hostname;
         } catch {
           return false;
         }
       });
       if (!hostMatch) {
-        extraNotes.push(`Evidence URL ${item.url} was not directly returned in initial search chunks and requires verification.`);
+        extraNotes.push(
+          `Rejected ungrounded evidence URL ${e.url} (not present in curated registry or retrieved redirects).`
+        );
+        return false;
       }
     }
-  }
+    return true;
+  });
+
+  const validBlockers = data.blockers.map((b) => ({
+    ...b,
+    evidence_url:
+      b.evidence_url && isValidHttpUrl(b.evidence_url) ? b.evidence_url : null,
+  }));
 
   return {
     ...data,
     official_website: isValidHttpUrl(data.official_website) ? data.official_website : null,
     mcp_repository_url: isValidHttpUrl(data.mcp_repository_url) ? data.mcp_repository_url : null,
+    blockers: validBlockers,
     evidence: validEvidence,
     notes: extraNotes,
   };

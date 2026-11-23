@@ -119,7 +119,7 @@ export function VerificationPage({
           Verification & Accuracy Audit
         </h1>
         <p className="text-sm text-[#64748B] mt-1">
-          Transparent comparison of first-pass AI claims against official
+          Transparent comparison of first-pass extracted claims against official
           documentation, evidence reachability, and manual sample checks.
         </p>
       </div>

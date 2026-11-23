@@ -21,7 +21,7 @@ export async function probeComposioEnvironment(): Promise<ComposioProbeSummary> 
       endpoint_tested: endpoint,
       status: "not_configured",
       message:
-        "COMPOSIO_API_KEY is not set in environment secrets. Live Composio toolkit catalog lookup was skipped honestly; core research runs independently via Gemini + Search Grounding + Verification.",
+        "COMPOSIO_API_KEY is not set in environment secrets. Live Composio toolkit catalog lookup was skipped honestly; core research runs independently via the deterministic evidence-first pipeline.",
       catalog_count: null,
     };
     return lastProbeStatus;
